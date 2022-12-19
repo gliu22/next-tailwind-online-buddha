@@ -3,8 +3,10 @@ import Link from 'next/link';
 import React, { useContext, useEffect, useState } from 'react';
 import { Store } from '../utils/Store';
 import { ToastContainer } from 'react-toastify';
-import { useSession } from 'next-auth/react';
+import { Menu } from '@headlessui/react';
+import { signOut, useSession } from 'next-auth/react';
 import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie';
 
 export default function Layout({ title, children }) {
   const { status, data: session } = useSession();
@@ -14,6 +16,12 @@ export default function Layout({ title, children }) {
   useEffect(() => {
     setCartItemsCount(cart.cartItems.reduce((a, c) => a + c.quantity, 0));
   }, [cart.cartItems]);
+
+  const logoutClickHanler = () => {
+    Cookies.remove('cart');
+    dispatch({ type: 'CART_RESET' });
+    signOut({ callbackUrl: '/login' });
+  };
 
   return (
     <>
@@ -42,7 +50,32 @@ export default function Layout({ title, children }) {
               {status === 'loading' ? (
                 'Loading...'
               ) : session?.user ? (
-                session.user.name
+                <Menu as="div" className="relative inline-block">
+                  <Menu.Button className="text-blue-600">
+                    {session.user.name}
+                  </Menu.Button>
+                  <Menu.Items className="absolute right-0 w-56 bg-white shadow-lg origin-top-right">
+                    <Menu.Item>
+                      <Link className="dropdown-link" href="/profile">
+                        Profile
+                      </Link>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <Link className="dropdown-link" href="/order-history">
+                        Order History
+                      </Link>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <Link
+                        className="dropdown-link"
+                        href="#"
+                        onClick={logoutClickHanler}
+                      >
+                        Logout
+                      </Link>
+                    </Menu.Item>
+                  </Menu.Items>
+                </Menu>
               ) : (
                 <Link href="/login" className="p-2">
                   Login
