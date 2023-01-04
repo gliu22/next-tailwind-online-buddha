@@ -27,7 +27,7 @@ function CartScreen() {
     }
 
     dispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
-    toast.success('Product added to cart');
+    toast.success('Product quantity updated');
   };
 
   return (
